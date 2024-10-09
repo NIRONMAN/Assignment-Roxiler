@@ -3,7 +3,9 @@ import dotenv from "dotenv";
 import mongoose from "mongoose";
 import Product from "./models/Product";
 import axios from "axios";
+import cors from "cors"
 const app = express();
+app.use(cors());
 dotenv.config();
 const portnumber = process.env.PORT;
 const url = process.env.DB_URL!;
