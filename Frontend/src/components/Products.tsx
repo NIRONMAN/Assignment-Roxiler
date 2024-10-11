@@ -1,90 +1,86 @@
+import React, { useState, useEffect } from 'react';
+import axios from 'axios';
 
-import React, { useState } from 'react';
+const ProductTbl = () => {
+  const [stuff, setStuff] = useState([]);
+  const [totalCount, setTotalCount] = useState(0);
+  const [currentPg, setCurrentPg] = useState(1);
 
-const initialTransactions = [
-  { id: 1, title: 'Product A', description: 'Description of Product A', price: 200, category: 'Electronics', sold: true, image: 'path/to/imageA.jpg' },
-  { id: 2, title: 'Product B', description: 'Description of Product B', price: 150, category: 'Apparel', sold: false, image: 'path/to/imageB.jpg' },
-  { id: 3, title: 'Product C', description: 'Description of Product C', price: 300, category: 'Home', sold: true, image: 'path/to/imageC.jpg' },
-  
-];
+  useEffect(() => {
+    getProducts();
+  }, [currentPg]);
 
-const Products=() => {
-  const [searchTerm, setSearchTerm] = useState('');
-  const [transactions] = useState(initialTransactions);
-
-  
-  const calculateStatistics = () => {
-    const totalSale = transactions.reduce((total, transaction) => total + (transaction.sold ? transaction.price : 0), 0);
-    const totalSold = transactions.filter(transaction => transaction.sold).length;
-    const totalNotSold = transactions.filter(transaction => !transaction.sold).length;
-
+  const getProducts = async () => {
+    try {
+      const resp = await axios.get(`http://localhost:3000/product/${currentPg}`);
+      const sorted=await resp.data.data.sort((a:any,b:any)=>a.id -b.id);
+      setStuff(sorted);
+      setTotalCount(resp.data.total);
+    } catch (err) {
+      console.log('Oops! Something went wrong:', err);
+    }
   };
 
-  
-  const filteredTransactions = transactions.filter(transaction =>
-    transaction.title.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  const nextPage = () => {
+    setCurrentPg(prev => prev + 1);
+  };
+
+  const prevPage = () => {
+    if (currentPg > 1) {
+      setCurrentPg(prev => prev - 1);
+    }
+  };
 
   return (
-    <div className="transaction-table">
-      <h3>Transactions</h3>
-      <div className="table-controls">
-        <input
-          type="text"
-          placeholder="Search transactions..."
-          value={searchTerm}
-          onChange={(e) => {
-            setSearchTerm(e.target.value);
-            calculateStatistics(); 
-          }}
-        />
-        <select onChange={() => calculateStatistics()}>
-          <option value="March" selected>March</option>
-          <option value="January">January</option>
-          <option value="February">February</option>
-          <option value="April">April</option>
-          <option value="May">May</option>
-          <option value="June">June</option>
-          <option value="July">July</option>
-          <option value="August">August</option>
-          <option value="September">September</option>
-          <option value="October">October</option>
-          <option value="November">November</option>
-          <option value="December">December</option>
-        </select>
-      </div>
-
-      <table>
-        <thead>
-          <tr>
-            <th>ID</th>
-            <th>Title</th>
-            <th>Description</th>
-            <th>Price</th>
-            <th>Category</th>
-            <th>Sold</th>
-            <th>Image</th>
-          </tr>
-        </thead>
-        <tbody>
-          {filteredTransactions.map(transaction => (
-            <tr key={transaction.id}>
-              <td>{transaction.id}</td>
-              <td>{transaction.title}</td>
-              <td>{transaction.description}</td>
-              <td>${transaction.price}</td>
-              <td>{transaction.category}</td>
-              <td>{transaction.sold ? 'Yes' : 'No'}</td>
-              <td>
-                <img src={transaction.image} alt={transaction.title} style={{ width: '50px', height: '50px' }} />
-              </td>
+    <div className="container mx-auto p-4">
+      <h1 className=' text-center text-4xl py-5'>Products</h1>
+      <div className="overflow-x-auto">
+        <table className="min-w-full bg-white">
+          <thead className="bg-gray-100">
+            <tr>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">ID</th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Title</th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Price</th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Category</th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Sold</th>
             </tr>
-          ))}
-        </tbody>
-      </table>
+          </thead>
+          <tbody className="divide-y divide-gray-200">
+            {stuff.map((item:any) => (
+              <tr key={item._id} className="hover:bg-gray-50">
+                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{item.id}</td>
+                <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{item.title}</td>
+                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{item.price.toFixed(2)} Rs.`</td>
+                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{item.category}</td>
+                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                  <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${item.sold ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}`}>
+                    {item.sold ? 'Yes' : 'No'}
+                  </span>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+      <div className="mt-4 flex items-center justify-between">
+        <button
+          onClick={prevPage}
+          disabled={currentPg === 1}
+          className="px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+        >
+          Previous
+        </button>
+        <span className="text-sm text-gray-700">Page {currentPg}</span>
+        <button
+          onClick={nextPage}
+          disabled={currentPg * 10 >= totalCount}
+          className="px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+        >
+          Next
+        </button>
+      </div>
     </div>
   );
 };
 
-
-export default Products
+export default ProductTbl;
