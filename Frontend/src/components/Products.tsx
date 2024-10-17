@@ -1,11 +1,12 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import axios from 'axios';
 
 const ProductTbl = () => {
   const [stuff, setStuff] = useState([]);
   const [totalCount, setTotalCount] = useState(0);
   const [currentPg, setCurrentPg] = useState(1);
-
+  const [month,setMonth]=useState<number|undefined>();
+  const [search,setSearch]=useState("");
   useEffect(() => {
     getProducts();
   }, [currentPg]);
@@ -13,7 +14,7 @@ const ProductTbl = () => {
   const getProducts = async () => {
     try {
       const resp = await axios.get(`http://localhost:3000/product/${currentPg}`);
-      const sorted=await resp.data.data.sort((a:any,b:any)=>a.id -b.id);
+      const sorted = await resp.data.data.sort((a: any, b: any) => a.id - b.id);
       setStuff(sorted);
       setTotalCount(resp.data.total);
     } catch (err) {
@@ -30,10 +31,57 @@ const ProductTbl = () => {
       setCurrentPg(prev => prev - 1);
     }
   };
+  useEffect(()=>{
+    (async()=>{
+      if(month){
+        const res=await axios.get(`http://localhost:3000/sale/${month}`);
+        const sorted = await res.data.saleData.sort((a: any, b: any) => a.id - b.id);
+      setStuff(sorted);
+        
+        //console.log(res.data.sale)
+      }
+    })()
+  },[month])
+  useEffect(()=>{
+    (async()=>{
+      if(search!==""){
+        const res=await axios.get(`http://localhost:3000/search/${search}`);
+        const sorted = await res.data.products.sort((a: any, b: any) => a.id - b.id);
+      setStuff(sorted);
+        
+        //console.log(res.data.sale)
+      }
+    })()
+  },[search])
 
   return (
     <div className="container mx-auto p-4">
       <h1 className=' text-center text-4xl py-5'>Products</h1>
+      <div className=' py-2 flex flex-row gap-2'>
+        <div className=' flex-1  '>
+          <input onChange={(e:React.ChangeEvent<HTMLInputElement>)=>setSearch(e.target.value)} className=' p-1 px-3 border-2 rounded-md focus:outline-slate-400 w-full' placeholder='Search...'></input>
+        </div>
+        <div className=' px-3 border-2 rounded-lg bg-gray-100'>
+
+          
+          <select value={month} onChange={async (e:React.ChangeEvent<HTMLSelectElement>)=>setMonth(await JSON.parse(e.target.value))} className=' outline-none border-2 border-gray-100 bg-gray-100'>
+            <option value={undefined} disabled selected>Select a month </option>
+            <option value={1}>Jan</option>
+            <option value={2}>Feb</option>
+            <option value={3}>Mar</option>
+            <option value={4}>Apr</option>
+            <option value={5}>May</option>
+            <option value={6}>Jun</option>
+            <option value={7}>Jul</option>
+            <option value={8}>Aug</option>
+            <option value={9}>Sep</option>
+            <option value={10}>Oct</option>
+            <option value={11}>Nov</option>
+            <option value={12}>Dec</option>
+
+          </select>
+        </div>
+      </div>
       <div className="overflow-x-auto">
         <table className="min-w-full bg-white">
           <thead className="bg-gray-100">
@@ -46,7 +94,7 @@ const ProductTbl = () => {
             </tr>
           </thead>
           <tbody className="divide-y divide-gray-200">
-            {stuff.map((item:any) => (
+            {stuff.map((item: any) => (
               <tr key={item._id} className="hover:bg-gray-50">
                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{item.id}</td>
                 <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{item.title}</td>
