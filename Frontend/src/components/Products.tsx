@@ -8,8 +8,9 @@ const ProductTbl = () => {
   const [month,setMonth]=useState<number|undefined>();
   const [search,setSearch]=useState("");
   useEffect(() => {
-    getProducts();
-  }, [currentPg]);
+    if(search==="")
+      getProducts();
+  }, [currentPg,search]);
 
   const getProducts = async () => {
     try {
@@ -56,7 +57,7 @@ const ProductTbl = () => {
 
   return (
     <div className="container mx-auto p-4">
-      <h1 className=' text-center text-4xl py-5'>Products</h1>
+      <h1 className=' text-center text-4xl py-2'>Products</h1>
       <div className=' py-2 flex flex-row gap-2'>
         <div className=' flex-1  '>
           <input onChange={(e:React.ChangeEvent<HTMLInputElement>)=>setSearch(e.target.value)} className=' p-1 px-3 border-2 rounded-md focus:outline-slate-400 w-full' placeholder='Search...'></input>
@@ -65,10 +66,10 @@ const ProductTbl = () => {
 
           
           <select value={month} onChange={async (e:React.ChangeEvent<HTMLSelectElement>)=>setMonth(await JSON.parse(e.target.value))} className=' outline-none border-2 border-gray-100 bg-gray-100'>
-            <option value={undefined} disabled selected>Select a month </option>
+            <option value={undefined} disabled >Select a month </option>
             <option value={1}>Jan</option>
             <option value={2}>Feb</option>
-            <option value={3}>Mar</option>
+            <option selected value={3}>Mar</option>
             <option value={4}>Apr</option>
             <option value={5}>May</option>
             <option value={6}>Jun</option>
@@ -98,7 +99,7 @@ const ProductTbl = () => {
               <tr key={item._id} className="hover:bg-gray-50">
                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{item.id}</td>
                 <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{item.title}</td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{item.price.toFixed(2)} Rs.`</td>
+                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">Rs. {item.price.toFixed(2)} </td>
                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{item.category}</td>
                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                   <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${item.sold ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}`}>
@@ -110,10 +111,10 @@ const ProductTbl = () => {
           </tbody>
         </table>
       </div>
-      <div className="mt-4 flex items-center justify-between">
+      <div  className="mt-4 flex items-center justify-between">
         <button
           onClick={prevPage}
-          disabled={currentPg === 1}
+          disabled={currentPg === 1 || search!==""}
           className="px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
         >
           Previous
@@ -121,7 +122,7 @@ const ProductTbl = () => {
         <span className="text-sm text-gray-700">Page {currentPg}</span>
         <button
           onClick={nextPage}
-          disabled={currentPg * 10 >= totalCount}
+          disabled={currentPg * 10 >= totalCount || search!==""}
           className="px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
         >
           Next

@@ -7,8 +7,8 @@ function Home() {
                 <h1 className=' text-4xl py-10 font-semibold'>Welcome to Roxiler Assignment</h1>
                 <div className=" h-full flex flex-1">
                     <Link to={"/Products"} className=" h-32 w-32 bg-purple-200 rounded-xl flex justify-center items-center m-2 text-center ">Transaction Table</Link>
-                    <Link to={"/Products"} className=" h-32 w-32 bg-purple-200 rounded-xl flex justify-center items-center m-2 text-center ">Transaction Statistics</Link>
-                    <Link to={"/Products"} className=" h-32 w-32 bg-purple-200 rounded-xl flex justify-center items-center m-2 text-center ">Transaction Bar chart</Link>
+                    <Link to={"/Stats"} className=" h-32 w-32 bg-purple-200 rounded-xl flex justify-center items-center m-2 text-center ">Transaction Statistics</Link>
+                    <Link to={"/Charts"} className=" h-32 w-32 bg-purple-200 rounded-xl flex justify-center items-center m-2 text-center ">Transaction Bar chart</Link>
 
                 </div>
             </div>
